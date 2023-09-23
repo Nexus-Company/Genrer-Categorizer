@@ -3,19 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexus.Categorizers.Genrer", "Nexus.Categorizers.Genrer\Nexus.Categorizers.Genrer.csproj", "{432CBFE8-7680-4069-B976-5DE2AFC7FB3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nexus.Categorizers.Genrer", "Nexus.Categorizers.Genrer\Nexus.Categorizers.Genrer.csproj", "{432CBFE8-7680-4069-B976-5DE2AFC7FB3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexus.Categorizers.Genrer.Extractor", "Nexus.Categorizers.Genrer.Extractor\Nexus.Categorizers.Genrer.Extractor.csproj", "{ACB0B5E8-F02F-4772-8FD3-5C4F70F8DC1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nexus.Categorizers.Genrer.Extractor", "Nexus.Categorizers.Genrer.Extractor\Nexus.Categorizers.Genrer.Extractor.csproj", "{ACB0B5E8-F02F-4772-8FD3-5C4F70F8DC1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nexus.Categorizers.Genrer.Test", "Nexus.Categorizers.Genrer.Test\Nexus.Categorizers.Genrer.Test.csproj", "{83E80004-D3B9-48C1-988A-74F7AAE41A6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nexus.Categorizers.Genrer.Test", "Nexus.Categorizers.Genrer.Test\Nexus.Categorizers.Genrer.Test.csproj", "{83E80004-D3B9-48C1-988A-74F7AAE41A6C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nexus.Spotify.Client", "Nexus.Spotify.Client\Nexus.Spotify.Client.csproj", "{64949AD2-5C99-48A8-9980-8C1A3EC03B74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{432CBFE8-7680-4069-B976-5DE2AFC7FB3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -30,5 +29,12 @@ Global
 		{83E80004-D3B9-48C1-988A-74F7AAE41A6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83E80004-D3B9-48C1-988A-74F7AAE41A6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83E80004-D3B9-48C1-988A-74F7AAE41A6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64949AD2-5C99-48A8-9980-8C1A3EC03B74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64949AD2-5C99-48A8-9980-8C1A3EC03B74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64949AD2-5C99-48A8-9980-8C1A3EC03B74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64949AD2-5C99-48A8-9980-8C1A3EC03B74}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

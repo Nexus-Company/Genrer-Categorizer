@@ -31,8 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Nexus.Spotify.Client\Nexus.Spotify.Client.csproj" />
-    <ProjectReference Include="..\Nexus.Party.Master.Categorizer\Nexus.Party.Master.Categorizer.csproj" />
+    <ProjectReference Include="..\Nexus.Categorizers.Genrer\Nexus.Categorizers.Genrer.csproj" />
+    <ProjectReference Include="..\Nexus.Spotify.Client\Nexus.Spotify.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

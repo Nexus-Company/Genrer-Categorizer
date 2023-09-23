@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Nexus.Party.Master.Categorizer.Analizer;
+using Nexus.Categorizers.Genrer.Analizer;
 using Nexus.Spotify.Client;
-using Nexus.Spotify.Client.Models;
-using System.Net.Http.Json;
+
+namespace Nexus.Categorizers.Genrer.Test;
 
 public class Program
 {
@@ -16,9 +16,38 @@ public class Program
 
         using SpotifyClient client = await Utils.GetConsoleClientAsync(config);
 
+        string json;
+
+        Console.Write("Deseja criar uma nova saida de treinamento (y/n): ");
+        var key = Console.ReadKey();
+        Console.Clear();
+        IEnumerable<LoadData> load;
+        
+        if (key.KeyChar == 'y' || key.KeyChar == 'Y')
+            await CreateNewOutput(client);
+
+        string outputFile = Path.Combine(Environment.CurrentDirectory, @".\Resources\Output.mma");
+
+        var machineAnalizer = MusicAnalizer.ReadFile(outputFile);
+
+        Console.Clear();
+        Console.Write("Escreva o Json de músicas para testar: ");
+        json = Console.ReadLine()!;
+        load = JsonConvert.DeserializeObject<LoadData[]>(json)!;
+
+        foreach (var item in load)
+        {
+            var track = await client.GetTrackAsync(item.Id);
+            var rst = await machineAnalizer.GetGenreAsync(track);
+        }
+    }
+
+
+    private static async Task CreateNewOutput(SpotifyClient client)
+    {
         string json = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "teste.json"));
 
-        var load = JsonConvert.DeserializeObject<LoadData[]>(json);
+        IEnumerable<LoadData> load = EqualizeGenres(JsonConvert.DeserializeObject<LoadData[]>(json)!);
 
         using MusicTrainner analizer = new();
         foreach (var batch in MusicTrainner.SplitListIntoBatches(load, 250))
@@ -46,19 +75,31 @@ public class Program
         string outputFile = Path.Combine(Environment.CurrentDirectory, @".\Resources\Output.mma");
 
         await analizer.SaveToFileAsync(outputFile);
+    }
+    public static LoadData[] EqualizeGenres(IEnumerable<LoadData> inputData)
+    {
+        // Encontre o número máximo de gêneros em um único item
+        int maxGenreCount = inputData.Max(item => item.Genres.Length);
 
-        var machineAnalizer = MusicAnalizer.ReadFile(outputFile);
+        // Crie uma lista de saída que terá todos os gêneros com a mesma quantidade
+        List<LoadData> equalizedList = new();
 
-        Console.Clear();
-        Console.Write("Escreva o Json de músicas para testar: ");
-        json = Console.ReadLine()!;
-        load = JsonConvert.DeserializeObject<LoadData[]>(json);
-
-        foreach (var item in load)
+        // Itere sobre cada item da entrada
+        foreach (var item in inputData)
         {
-            var track = await client.GetTrackAsync(item.Id);
-            var rst = await machineAnalizer.GetGenreAsync(track);
+            // Para cada item, crie cópias adicionais com os gêneros repetidos para igualar a quantidade
+            foreach (var genre in item.Genres)
+            {
+                var newItem = new LoadData
+                {
+                    Id = item.Id,
+                    Genres = Enumerable.Repeat(genre, maxGenreCount).ToArray()
+                };
+                equalizedList.Add(newItem);
+            }
         }
+
+        return equalizedList.ToArray();
     }
 }
 
@@ -67,3 +108,4 @@ public class LoadData
     public string Id { get; set; }
     public string[] Genres { get; set; }
 }
+

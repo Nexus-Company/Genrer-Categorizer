@@ -1,16 +1,17 @@
 ﻿using Accord.MachineLearning.VectorMachines;
 using Accord.Statistics.Kernels;
-using Nexus.Party.Master.Categorizer.Models;
+using Nexus.Categorizers.Genrer.Models;
 using Nexus.Spotify.Client.Models;
-using StreamReader = Nexus.Party.Master.Categorizer.Save.StreamReader;
+using StreamReader = Nexus.Categorizers.Genrer.Save.StreamReader;
 
-namespace Nexus.Party.Master.Categorizer.Analizer;
+namespace Nexus.Categorizers.Genrer.Analizer;
 
 public class MusicAnalizer : MusicAnalizerBase
 {
-    MultilabelSupportVectorMachine<Gaussian> machine;
+    readonly MultilabelSupportVectorMachine<Gaussian> machine;
 
-    internal MusicAnalizer(GenreConvert genreConvert, IEnumerable<MusicData> input) : base(genreConvert)
+    internal MusicAnalizer(GenreConvert genreConvert, IEnumerable<MusicData> input)
+        : base(genreConvert)
     {
         machine = TrainSVMModel(input.Select(item => item.Mfccs).ToArray(),
             input.Select(item => item.GenreLabel).ToArray());

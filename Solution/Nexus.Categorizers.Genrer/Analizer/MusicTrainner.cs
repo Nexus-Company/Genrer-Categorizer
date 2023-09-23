@@ -1,13 +1,13 @@
 ﻿using Accord.MachineLearning.VectorMachines;
-using Accord.Statistics.Kernels;
-using Nexus.Party.Master.Categorizer.Save;
-using Nexus.Party.Master.Categorizer.Models;
-using Nexus.Spotify.Client.Models;
-using System.Data;
 using Accord.Math;
+using Accord.Statistics.Kernels;
+using Nexus.Categorizers.Genrer.Models;
+using Nexus.Categorizers.Genrer.Save;
+using Nexus.Spotify.Client.Models;
 using System.Collections.Concurrent;
+using System.Data;
 
-namespace Nexus.Party.Master.Categorizer.Analizer;
+namespace Nexus.Categorizers.Genrer.Analizer;
 
 public class MusicTrainner : MusicAnalizerBase
 {
@@ -15,7 +15,8 @@ public class MusicTrainner : MusicAnalizerBase
     private readonly List<Task> downloadTasks;
 
     MultilabelSupportVectorMachine<Gaussian>? machine;
-    public MusicTrainner() : base(new GenreConvert())
+    public MusicTrainner()
+        : base(new GenreConvert())
     {
         results = new();
         downloadTasks = new();

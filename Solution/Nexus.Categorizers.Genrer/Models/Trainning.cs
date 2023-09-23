@@ -1,4 +1,4 @@
-﻿namespace Nexus.Party.Master.Categorizer.Models;
+﻿namespace Nexus.Categorizers.Genrer.Models;
 
 internal struct Trainning
 {

@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Text;
+﻿using System.Text;
 
-namespace Nexus.Party.Master.Categorizer.Models;
+namespace Nexus.Categorizers.Genrer.Models;
 
 internal struct GenreConvert
 {
@@ -33,14 +32,14 @@ internal struct GenreConvert
 
             short value = (short)(last.Value + 1);
 
-            keys.TryAdd(genre, value);
+            keys.TryAdd(genre.ToLowerInvariant(), value);
 
             return value;
         }
     }
 
     public readonly short Get(string genre)
-        => keys[genre];
+        => keys[genre.ToLowerInvariant()];
     public readonly short ElementAt(int position)
         => keys.ElementAt(position).Value;
 

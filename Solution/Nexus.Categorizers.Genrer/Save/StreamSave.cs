@@ -1,6 +1,4 @@
 ﻿using Nexus.Categorizers.Genrer.Models;
-using System.Text;
-using System;
 
 namespace Nexus.Categorizers.Genrer.Save;
 
@@ -41,7 +39,7 @@ internal class StreamSave : IDisposable
     {
         await output.WriteAsync(
             trainning.Id.ToByteArray());
-        
+
         await output.WriteAsync(
             BitConverter.GetBytes(trainning.Genres.Length));
 

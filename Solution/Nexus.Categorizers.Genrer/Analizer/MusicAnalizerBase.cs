@@ -3,12 +3,12 @@ using Accord.MachineLearning.VectorMachines.Learning;
 using Accord.Math;
 using Accord.Statistics.Kernels;
 using NAudio.Wave;
-using Nexus.Party.Master.Categorizer.Models;
+using Nexus.Categorizers.Genrer.Models;
 using Nexus.Spotify.Client.Models;
 using NWaves.FeatureExtractors;
 using NWaves.FeatureExtractors.Options;
 
-namespace Nexus.Party.Master.Categorizer.Analizer;
+namespace Nexus.Categorizers.Genrer.Analizer;
 
 public abstract class MusicAnalizerBase : IDisposable
 {
@@ -82,7 +82,7 @@ public abstract class MusicAnalizerBase : IDisposable
         return ConvertMfccsToDouble(mfccs.ToArray());
     }
 
-    private protected MultilabelSupportVectorMachine<Gaussian> TrainSVMModel(double[][] inputs, bool[][] outputs)
+    private protected static MultilabelSupportVectorMachine<Gaussian> TrainSVMModel(double[][] inputs, bool[][] outputs)
     {
         // Create a new Linear kernel
         // Create the Multi-class learning algorithm for the machine

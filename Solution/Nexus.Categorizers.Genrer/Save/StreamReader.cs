@@ -1,6 +1,5 @@
 ﻿using Nexus.Categorizers.Genrer.Analizer;
 using Nexus.Categorizers.Genrer.Models;
-using System.Linq;
 using System.Text;
 
 namespace Nexus.Categorizers.Genrer.Save;
