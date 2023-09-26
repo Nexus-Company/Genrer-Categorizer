@@ -5,13 +5,14 @@ using Accord.Math;
 using Accord.Statistics.Kernels;
 using NAudio.Wave;
 using Nexus.Categorizers.Genrer.Models;
-using Nexus.Spotify.Client.Models;
 using NWaves.FeatureExtractors;
 using NWaves.FeatureExtractors.Options;
 using System.IO.Compression;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace Nexus.Categorizers.Genrer.Analizer;
-
+#pragma warning disable SYSLIB0011
 public abstract class MusicAnalizerBase : IDisposable
 {
     private const string WeigthsFile = "Weigths.mma";
@@ -32,24 +33,28 @@ public abstract class MusicAnalizerBase : IDisposable
     private protected MusicAnalizerBase(GenreConvert genreConvert, MultilabelSupportVectorMachine<Gaussian>? machine)
     {
         Id = Guid.NewGuid();
-        TempPath ??= Path.Combine(Path.GetTempPath(), "Music-Analizer");
         this.genreConvert = genreConvert;
-
-        if (!Directory.Exists(TempPath))
-            Directory.CreateDirectory(TempPath);
-
-        TempPath = Path.Combine(TempPath, "Previews");
-
-        if (!Directory.Exists(TempPath))
-            Directory.CreateDirectory(TempPath);
-
         _machine = machine;
+
+        TempPath = Path.Combine(Path.GetTempPath(), "Music-Analizer");
+
+        if (!Directory.Exists(TempPath))
+            Directory.CreateDirectory(TempPath);
     }
 
     private protected MusicAnalizerBase(GenreConvert genres, Stream str)
-        : this(genres,
-              Serializer.Load<MultilabelSupportVectorMachine<Gaussian>>(str))
-    { }
+        : this(genres)
+    {
+        try
+        {
+            BinaryFormatter formatter = new();
+            _machine = (MultilabelSupportVectorMachine<Gaussian>)formatter.Deserialize(str);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 
     public void Save(string file)
     {
@@ -63,6 +68,7 @@ public abstract class MusicAnalizerBase : IDisposable
         fileName = Path.Combine(fileName, $@"{DateTime.Now:dd_MM_yyyy_ss}.mma");
 
         Serializer.Save(_machine, fileName);
+
         zip.CreateEntryFromFile(fileName, WeigthsFile, CompressionLevel.SmallestSize);
 
         fileName = $"{fileName}.gens";
@@ -94,20 +100,6 @@ public abstract class MusicAnalizerBase : IDisposable
     }
 
     #region Auxiliary
-    private protected async Task<Stream> DownloadAsync(Track track)
-    {
-        string tempFile = Path.Combine(TempPath, $"{track.Id}.mp3");
-
-        bool fileExists = File.Exists(tempFile);
-
-        var stream = new FileStream(tempFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
-        if (!fileExists)
-            await track.DownloadPreviewAsync(stream);
-
-        return stream;
-    }
-
     private protected static double[] CalculateMFCCs(Stream stream)
     {
         var samplesList = new List<float>();

@@ -1,7 +1,7 @@
-﻿using Accord.IO;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Nexus.Categorizers.Genrer.Analizer;
+using Nexus.Categorizers.Genrer.Test.Models;
 using Nexus.Spotify.Client;
 using Nexus.Spotify.Client.Models;
 
@@ -24,11 +24,12 @@ public class Program
         var key = Console.ReadKey();
         Console.Clear();
         IEnumerable<LoadData> load;
+        string outputFile;
 
         if (key.KeyChar == 'y' || key.KeyChar == 'Y')
-            await CreateNewOutput(client);
-
-        string outputFile = Path.Combine(Environment.CurrentDirectory, @".\Outputs\Output.mma");
+            outputFile = await CreateNewOutput(client);
+        else
+            outputFile = Path.Combine(Environment.CurrentDirectory, @"Outputs\Output.mma");
 
         var machineAnalizer = MusicAnalizer.Load(outputFile);
 
@@ -41,14 +42,14 @@ public class Program
         foreach (var item in load)
         {
             var track = await client.GetTrackAsync(item.Id);
-            var rst = await machineAnalizer.GetGenreAsync(track);
+            var rst = await machineAnalizer.GetGenreAsync(new LocalTrack(track));
             rsts.Add(track, rst);
         }
 
 
     }
 
-    private static async Task CreateNewOutput(SpotifyClient client)
+    private static async Task<string> CreateNewOutput(SpotifyClient client)
     {
         string json = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "teste.json"));
 
@@ -63,10 +64,10 @@ public class Program
                 var task = client.GetTrackAsync(item.Id);
                 tasks.Add(task.ContinueWith((task, obj) =>
                 {
-                    if (task.Result.Restrictions != null)
+                    if (task.Result!.Restrictions != null)
                         return;
 
-                    analizer.AddToTrainning(task.Result, item.Genres);
+                    analizer.AddToTrainning(new LocalTrack(task.Result), item.Genres);
                 }, null));
             }
 
@@ -77,9 +78,14 @@ public class Program
         await analizer.ProccessAsync();
         analizer.Trainnig();
 
-        string outputFile = Path.Combine(Environment.CurrentDirectory, @".\Resources\Output.mma");
+        string output = Path.Combine(Environment.CurrentDirectory, "Resources");
 
-        analizer.Save(outputFile);
+        if (!Directory.Exists(output))
+            Directory.CreateDirectory(output);
+
+        analizer.Save(output);
+
+        return output;
     }
     public static IEnumerable<LoadData> EqualizeGenres(IEnumerable<LoadData> inputData)
     {
@@ -88,7 +94,7 @@ public class Program
             .Select(group =>
             {
                 var uniqueGenres = group.SelectMany(ld => ld.Genres).Distinct().ToList();
-                return new LoadData { Id = group.Key, Genres = uniqueGenres.ToArray() };
+                return new LoadData(group.Key, uniqueGenres.ToArray());
             })
             .ToArray();
 
@@ -103,8 +109,4 @@ public class Program
     }
 }
 
-public class LoadData
-{
-    public string Id { get; set; }
-    public string[] Genres { get; set; }
-}
+public record LoadData(string Id, string[] Genres);

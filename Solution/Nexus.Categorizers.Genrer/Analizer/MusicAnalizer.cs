@@ -1,5 +1,4 @@
 ﻿using Nexus.Categorizers.Genrer.Models;
-using Nexus.Spotify.Client.Models;
 
 namespace Nexus.Categorizers.Genrer.Analizer;
 
@@ -10,13 +9,16 @@ public class MusicAnalizer : MusicAnalizerBase
     {
     }
 
-    public async Task<string[]> GetGenreAsync(Track track)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="track"></param>
+    /// <returns></returns>
+    public async Task<string[]> GetGenreAsync(ITrack track)
     {
-        var str = await DownloadAsync(track);
+        var mfccs = CalculateMFCCs(track.GetPreview());
 
-        var mfccs = CalculateMFCCs(str);
-
-        bool[] results = _machine.Decide(mfccs);
+        bool[] results = _machine!.Decide(mfccs);
 
         List<string> result = new();
 

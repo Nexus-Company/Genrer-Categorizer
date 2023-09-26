@@ -3,7 +3,6 @@ using Accord.MachineLearning.VectorMachines.Learning;
 using Accord.Math;
 using Accord.Statistics.Kernels;
 using Nexus.Categorizers.Genrer.Models;
-using Nexus.Spotify.Client.Models;
 using System.Collections.Concurrent;
 using System.Data;
 
@@ -22,7 +21,7 @@ public class MusicTrainner : MusicAnalizerBase
     }
 
     int mfccsCount = 0;
-    public void AddToTrainning(Track track, string[] genres)
+    public void AddToTrainning(ITrack track, string[] genres)
     {
         async void Add(object? obj)
         {
@@ -50,9 +49,7 @@ public class MusicTrainner : MusicAnalizerBase
                     Console.WriteLine($"Music id \"{trainning.Track.Id}\" rewrite genres.");
                 }
 
-                var stream = await DownloadAsync(trainning.Track);
-
-                var mfccs = CalculateMFCCs(stream);
+                var mfccs = CalculateMFCCs(track.GetPreview());
 
                 if (mfccsCount == 0)
                     mfccsCount = mfccs.Length;
@@ -150,13 +147,13 @@ public class MusicTrainner : MusicAnalizerBase
 
     private struct AddTrainning
     {
-        public AddTrainning(Track track, string[] genres)
+        public AddTrainning(ITrack track, string[] genres)
         {
             Track = track ?? throw new ArgumentNullException(nameof(track));
             Genres = genres ?? throw new ArgumentNullException(nameof(genres));
         }
 
-        public Track Track { get; set; }
+        public ITrack Track { get; set; }
         public string[] Genres { get; set; }
     }
 }
