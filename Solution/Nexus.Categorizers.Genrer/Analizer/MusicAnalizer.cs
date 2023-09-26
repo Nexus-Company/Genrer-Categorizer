@@ -1,30 +1,13 @@
-﻿using Accord.MachineLearning.VectorMachines;
-using Accord.Statistics.Kernels;
-using Nexus.Categorizers.Genrer.Models;
+﻿using Nexus.Categorizers.Genrer.Models;
 using Nexus.Spotify.Client.Models;
-using StreamReader = Nexus.Categorizers.Genrer.Save.StreamReader;
 
 namespace Nexus.Categorizers.Genrer.Analizer;
 
 public class MusicAnalizer : MusicAnalizerBase
 {
-    readonly MultilabelSupportVectorMachine<Gaussian> machine;
-
-    internal MusicAnalizer(GenreConvert genreConvert, IEnumerable<MusicData> input)
-        : base(genreConvert)
+    private protected MusicAnalizer(GenreConvert genres, Stream str)
+        : base(genres, str)
     {
-        machine = TrainSVMModel(input.Select(item => item.Mfccs).ToArray(),
-            input.Select(item => item.GenreLabel).ToArray());
-    }
-
-    public static MusicAnalizer ReadFile(string fileName)
-        => ReadStream(File.OpenRead(fileName));
-
-    public static MusicAnalizer ReadStream(Stream stream)
-    {
-        using StreamReader sr = new(stream);
-
-        return sr.ReadToStream();
     }
 
     public async Task<string[]> GetGenreAsync(Track track)
@@ -33,7 +16,7 @@ public class MusicAnalizer : MusicAnalizerBase
 
         var mfccs = CalculateMFCCs(str);
 
-        bool[] results = machine.Decide(mfccs);
+        bool[] results = _machine.Decide(mfccs);
 
         List<string> result = new();
 
@@ -44,5 +27,12 @@ public class MusicAnalizer : MusicAnalizerBase
         }
 
         return result.ToArray();
+    }
+
+    public static new MusicAnalizer Load(string file)
+    {
+        var str = GetLoader(file, out GenreConvert genres);
+
+        return new MusicAnalizer(genres, str);
     }
 }

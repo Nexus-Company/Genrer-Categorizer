@@ -48,9 +48,8 @@ internal struct GenreConvert
         byte[] buffer;
         foreach (var item in keys)
         {
-            buffer = Encoding.ASCII.GetBytes(item.Key);
-
             output.Write(BitConverter.GetBytes(item.Value));
+            buffer = Encoding.UTF8.GetBytes(item.Key);
             output.Write(BitConverter.GetBytes(buffer.Length));
             output.Write(buffer);
         }

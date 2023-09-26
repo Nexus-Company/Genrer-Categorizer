@@ -1,4 +1,5 @@
-﻿using Accord.MachineLearning.VectorMachines;
+﻿using Accord.IO;
+using Accord.MachineLearning.VectorMachines;
 using Accord.MachineLearning.VectorMachines.Learning;
 using Accord.Math;
 using Accord.Statistics.Kernels;
@@ -7,16 +8,28 @@ using Nexus.Categorizers.Genrer.Models;
 using Nexus.Spotify.Client.Models;
 using NWaves.FeatureExtractors;
 using NWaves.FeatureExtractors.Options;
+using System.IO.Compression;
 
 namespace Nexus.Categorizers.Genrer.Analizer;
 
 public abstract class MusicAnalizerBase : IDisposable
 {
-    public Guid Id { get; private set; }
+    private const string WeigthsFile = "Weigths.mma";
+    private const string GenresFile = "Genres.gens";
     private readonly string TempPath;
     private protected readonly GenreConvert genreConvert;
     private protected IEnumerable<MusicData>? dataset;
+    private protected MultilabelSupportVectorMachine<Gaussian>? _machine;
+
+    public Guid Id { get; private set; }
+
     internal MusicAnalizerBase(GenreConvert genreConvert)
+        : this(genreConvert, machine: null)
+    {
+
+    }
+
+    private protected MusicAnalizerBase(GenreConvert genreConvert, MultilabelSupportVectorMachine<Gaussian>? machine)
     {
         Id = Guid.NewGuid();
         TempPath ??= Path.Combine(Path.GetTempPath(), "Music-Analizer");
@@ -29,6 +42,55 @@ public abstract class MusicAnalizerBase : IDisposable
 
         if (!Directory.Exists(TempPath))
             Directory.CreateDirectory(TempPath);
+
+        _machine = machine;
+    }
+
+    private protected MusicAnalizerBase(GenreConvert genres, Stream str)
+        : this(genres,
+              Serializer.Load<MultilabelSupportVectorMachine<Gaussian>>(str))
+    { }
+
+    public void Save(string file)
+    {
+        string fileName = Path.Combine(TempPath, "Saves");
+
+        if (!Directory.Exists(fileName))
+            Directory.CreateDirectory(fileName);
+
+        using ZipArchive zip = ZipFile.Open(file, ZipArchiveMode.Create);
+
+        fileName = Path.Combine(fileName, $@"{DateTime.Now:dd_MM_yyyy_ss}.mma");
+
+        Serializer.Save(_machine, fileName);
+        zip.CreateEntryFromFile(fileName, WeigthsFile, CompressionLevel.SmallestSize);
+
+        fileName = $"{fileName}.gens";
+
+        using MemoryStream fileStr = new();
+        genreConvert.SaveToStream(fileStr);
+        fileStr.Position = 0;
+
+        // Create and copy MemoryStream
+        ZipArchiveEntry entry = zip.CreateEntry(GenresFile);
+        using Stream entryStream = entry.Open();
+        fileStr.CopyTo(entryStream);
+    }
+
+    public static MusicAnalizerBase Load(string file)
+    {
+        throw new NotImplementedException();
+    }
+
+    private protected static Stream GetLoader(string file, out GenreConvert genres)
+    {
+        using ZipArchive zip = ZipFile.Open(file, ZipArchiveMode.Read);
+
+        var entry = zip.GetEntry(GenresFile);
+        var str = new Save.StreamReader(entry!.Open());
+        genres = str.GetGenres();
+
+        return zip.GetEntry(WeigthsFile)!.Open();
     }
 
     #region Auxiliary
@@ -165,6 +227,7 @@ public abstract class MusicAnalizerBase : IDisposable
     public void Dispose()
     {
         if (Directory.Exists(TempPath))
-            Directory.Delete(TempPath, true);
+        {
+        }
     }
 }

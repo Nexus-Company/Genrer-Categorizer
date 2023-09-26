@@ -1,8 +1,8 @@
 ﻿using Accord.MachineLearning.VectorMachines;
+using Accord.MachineLearning.VectorMachines.Learning;
 using Accord.Math;
 using Accord.Statistics.Kernels;
 using Nexus.Categorizers.Genrer.Models;
-using Nexus.Categorizers.Genrer.Save;
 using Nexus.Spotify.Client.Models;
 using System.Collections.Concurrent;
 using System.Data;
@@ -14,13 +14,13 @@ public class MusicTrainner : MusicAnalizerBase
     private readonly ConcurrentDictionary<string, Trainning> results;
     private readonly List<Task> downloadTasks;
 
-    MultilabelSupportVectorMachine<Gaussian>? machine;
     public MusicTrainner()
         : base(new GenreConvert())
     {
         results = new();
         downloadTasks = new();
     }
+
     int mfccsCount = 0;
     public void AddToTrainning(Track track, string[] genres)
     {
@@ -103,17 +103,12 @@ public class MusicTrainner : MusicAnalizerBase
         var trainingOutputs = dataset.Select(unit => unit.GenreLabel).ToArray();
 
         // Treinamento do modelo SVM multirrótulo com o dataset de treinamento
-        machine = TrainSVMModel(trainingInputs, trainingOutputs);
-    }
+        _machine ??= new MultilabelSupportVectorMachine<Gaussian>(dataset.First().Mfccs.Length, new Gaussian(), genreConvert.Count);
 
-    public async Task SaveToFileAsync(string fileName)
-        => await SaveToStreamAsync(new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write));
+        // Criar um objeto de aprendizado SVM para treinar o modelo
+        var teacher = new MultilabelSupportVectorLearning<Gaussian>(_machine);
 
-    public async Task SaveToStreamAsync(Stream stream)
-    {
-        using var fileSave = new StreamSave(stream, genreConvert, results);
-
-        await fileSave.SaveToStreamAsync();
+        _machine = teacher.Learn(trainingInputs, trainingOutputs);
     }
 
     #region Auxiliary
@@ -140,7 +135,7 @@ public class MusicTrainner : MusicAnalizerBase
     }
     public static IEnumerable<IEnumerable<T>> SplitListIntoBatches<T>(IEnumerable<T> sourceList, int batchSize)
     {
-        List<IEnumerable<T>> batches = new List<IEnumerable<T>>();
+        List<IEnumerable<T>> batches = new();
 
         for (int i = 0; i < sourceList.Count(); i += batchSize)
         {
@@ -149,9 +144,9 @@ public class MusicTrainner : MusicAnalizerBase
 
         return batches.ToArray();
     }
+
     // TODO: Criar módulo que evolui o modelo atual 
     #endregion
-
 
     private struct AddTrainning
     {

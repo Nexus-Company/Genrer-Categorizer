@@ -1,6 +1,6 @@
 Header
 
-4 (Integer of Genres count) | 4 (Integer of Results count)
+4 (Integer of Genres count)
 
 ------------------------------------------------------------------------------------------------
 

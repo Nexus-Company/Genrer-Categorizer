@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Accord.IO;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Nexus.Categorizers.Genrer.Analizer;
 using Nexus.Spotify.Client;
+using Nexus.Spotify.Client.Models;
 
 namespace Nexus.Categorizers.Genrer.Test;
 
@@ -22,26 +24,29 @@ public class Program
         var key = Console.ReadKey();
         Console.Clear();
         IEnumerable<LoadData> load;
-        
+
         if (key.KeyChar == 'y' || key.KeyChar == 'Y')
             await CreateNewOutput(client);
 
-        string outputFile = Path.Combine(Environment.CurrentDirectory, @".\Resources\Output.mma");
+        string outputFile = Path.Combine(Environment.CurrentDirectory, @".\Outputs\Output.mma");
 
-        var machineAnalizer = MusicAnalizer.ReadFile(outputFile);
+        var machineAnalizer = MusicAnalizer.Load(outputFile);
 
         Console.Clear();
         Console.Write("Escreva o Json de músicas para testar: ");
         json = Console.ReadLine()!;
         load = JsonConvert.DeserializeObject<LoadData[]>(json)!;
 
+        Dictionary<Track, IEnumerable<string>> rsts = new();
         foreach (var item in load)
         {
             var track = await client.GetTrackAsync(item.Id);
             var rst = await machineAnalizer.GetGenreAsync(track);
+            rsts.Add(track, rst);
         }
-    }
 
+
+    }
 
     private static async Task CreateNewOutput(SpotifyClient client)
     {
@@ -74,32 +79,27 @@ public class Program
 
         string outputFile = Path.Combine(Environment.CurrentDirectory, @".\Resources\Output.mma");
 
-        await analizer.SaveToFileAsync(outputFile);
+        analizer.Save(outputFile);
     }
-    public static LoadData[] EqualizeGenres(IEnumerable<LoadData> inputData)
+    public static IEnumerable<LoadData> EqualizeGenres(IEnumerable<LoadData> inputData)
     {
-        // Encontre o número máximo de gêneros em um único item
-        int maxGenreCount = inputData.Max(item => item.Genres.Length);
-
-        // Crie uma lista de saída que terá todos os gêneros com a mesma quantidade
-        List<LoadData> equalizedList = new();
-
-        // Itere sobre cada item da entrada
-        foreach (var item in inputData)
-        {
-            // Para cada item, crie cópias adicionais com os gêneros repetidos para igualar a quantidade
-            foreach (var genre in item.Genres)
+        inputData = inputData
+            .GroupBy(ld => ld.Id)
+            .Select(group =>
             {
-                var newItem = new LoadData
-                {
-                    Id = item.Id,
-                    Genres = Enumerable.Repeat(genre, maxGenreCount).ToArray()
-                };
-                equalizedList.Add(newItem);
-            }
-        }
+                var uniqueGenres = group.SelectMany(ld => ld.Genres).Distinct().ToList();
+                return new LoadData { Id = group.Key, Genres = uniqueGenres.ToArray() };
+            })
+            .ToArray();
 
-        return equalizedList.ToArray();
+        var groupedByGenres = inputData
+             .SelectMany(ld => ld.Genres.Select(genre => new { Genre = genre.Trim().ToLowerInvariant(), LoadData = ld }))
+             .GroupBy(item => item.Genre)
+             .ToDictionary(group => group.Key, group => group.Select(item => item.LoadData).ToList());
+
+        var minGenres = groupedByGenres.Min(group => group.Value.Count);
+
+        return groupedByGenres.SelectMany(group => group.Value.Take(minGenres));
     }
 }
 
@@ -108,4 +108,3 @@ public class LoadData
     public string Id { get; set; }
     public string[] Genres { get; set; }
 }
-
