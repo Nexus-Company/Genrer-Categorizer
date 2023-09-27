@@ -31,7 +31,7 @@ public class Program
         else
             outputFile = Path.Combine(Environment.CurrentDirectory, @"Outputs\Output.mma");
 
-        var machineAnalizer = MusicAnalizer.Load(outputFile);
+        using var machineAnalizer = MusicAnalizer.Load(outputFile);
 
         Console.Clear();
         Console.Write("Escreva o Json de músicas para testar: ");
@@ -45,13 +45,11 @@ public class Program
             var rst = await machineAnalizer.GetGenreAsync(new LocalTrack(track));
             rsts.Add(track, rst);
         }
-
-
     }
 
     private static async Task<string> CreateNewOutput(SpotifyClient client)
     {
-        string json = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "teste-slow.json"));
+        string json = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "teste.json"));
 
         IEnumerable<LoadData> load = EqualizeGenres(JsonConvert.DeserializeObject<LoadData[]>(json)!);
 
@@ -90,15 +88,6 @@ public class Program
     }
     public static IEnumerable<LoadData> EqualizeGenres(IEnumerable<LoadData> inputData)
     {
-        inputData = inputData
-            .GroupBy(ld => ld.Id)
-            .Select(group =>
-            {
-                var uniqueGenres = group.SelectMany(ld => ld.Genres).Distinct().ToList();
-                return new LoadData(group.Key, uniqueGenres.ToArray());
-            })
-            .ToArray();
-
         var groupedByGenres = inputData
              .SelectMany(ld => ld.Genres.Select(genre => new { Genre = genre.Trim().ToLowerInvariant(), LoadData = ld }))
              .GroupBy(item => item.Genre)
@@ -106,7 +95,13 @@ public class Program
 
         var minGenres = groupedByGenres.Min(group => group.Value.Count);
 
-        return groupedByGenres.SelectMany(group => group.Value.Take(minGenres));
+        return groupedByGenres.SelectMany(group => group.Value.Take(minGenres)).GroupBy(ld => ld.Id, StringComparer.OrdinalIgnoreCase)
+               .Select(group =>
+               {
+                   var uniqueGenres = group.SelectMany(ld => ld.Genres).Distinct().ToList();
+                   return new LoadData(group.Key, uniqueGenres.ToArray());
+               })
+               .ToArray();
     }
 }
 

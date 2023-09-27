@@ -8,11 +8,11 @@ using System.Data;
 
 namespace Nexus.Categorizers.Genrer.Analizer;
 
-public class MusicTrainner : MusicAnalizerBase
+public partial class MusicTrainner : MusicAnalizerBase
 {
     private readonly ConcurrentDictionary<string, Trainning> results;
     private readonly List<Task> downloadTasks;
-
+    private int mfccsCount = 0;
     public MusicTrainner()
         : base(new GenreConvert())
     {
@@ -20,7 +20,13 @@ public class MusicTrainner : MusicAnalizerBase
         downloadTasks = new();
     }
 
-    int mfccsCount = 0;
+    private protected MusicTrainner(GenreConvert genres, Stream str)
+        : base(genres, str)
+    {
+        results = new();
+        downloadTasks = new();
+    }
+
     public void AddToTrainning(ITrack track, string[] genres)
     {
         async void Add(object? obj)
@@ -88,7 +94,7 @@ public class MusicTrainner : MusicAnalizerBase
         foreach (var track in results)
             data.Add(new(track.Value, genreConvert));
 
-        dataset = data.ToArray();
+        dataset = data;
     }
 
     public void Trainnig()
@@ -106,6 +112,13 @@ public class MusicTrainner : MusicAnalizerBase
         var teacher = new MultilabelSupportVectorLearning<Gaussian>(_machine);
 
         _machine = teacher.Learn(trainingInputs, trainingOutputs);
+    }
+
+    public static new MusicTrainner Load(string file)
+    {
+        using var str = GetLoader(file, out GenreConvert genres);
+
+        return new MusicTrainner(genres, str);
     }
 
     #region Auxiliary
@@ -142,18 +155,16 @@ public class MusicTrainner : MusicAnalizerBase
         return batches.ToArray();
     }
 
-    // TODO: Criar módulo que evolui o modelo atual 
     #endregion
 
-    private struct AddTrainning
+    public override void Dispose()
     {
-        public AddTrainning(ITrack track, string[] genres)
-        {
-            Track = track ?? throw new ArgumentNullException(nameof(track));
-            Genres = genres ?? throw new ArgumentNullException(nameof(genres));
-        }
+        base.Dispose();
 
-        public ITrack Track { get; set; }
-        public string[] Genres { get; set; }
+        results.Clear();
+        downloadTasks.Clear();
+        mfccsCount = 0;
+
+        GC.SuppressFinalize(this);
     }
 }

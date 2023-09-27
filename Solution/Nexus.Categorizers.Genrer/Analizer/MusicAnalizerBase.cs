@@ -9,7 +9,6 @@ using NWaves.FeatureExtractors;
 using NWaves.FeatureExtractors.Options;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization;
 
 namespace Nexus.Categorizers.Genrer.Analizer;
 #pragma warning disable SYSLIB0011
@@ -17,10 +16,22 @@ public abstract class MusicAnalizerBase : IDisposable
 {
     private const string WeigthsFile = "Weigths.mma";
     private const string GenresFile = "Genres.gens";
-    private readonly string TempPath;
     private protected readonly GenreConvert genreConvert;
     private protected IEnumerable<MusicData>? dataset;
     private protected MultilabelSupportVectorMachine<Gaussian>? _machine;
+
+    private static string TempPath
+    {
+        get
+        {
+            string value = Path.Combine(Path.GetTempPath(), "Music-Analizer");
+
+            if (!Directory.Exists(value))
+                Directory.CreateDirectory(value);
+
+            return value;
+        }
+    }
 
     public Guid Id { get; private set; }
 
@@ -35,11 +46,6 @@ public abstract class MusicAnalizerBase : IDisposable
         Id = Guid.NewGuid();
         this.genreConvert = genreConvert;
         _machine = machine;
-
-        TempPath = Path.Combine(Path.GetTempPath(), "Music-Analizer");
-
-        if (!Directory.Exists(TempPath))
-            Directory.CreateDirectory(TempPath);
     }
 
     private protected MusicAnalizerBase(GenreConvert genres, Stream str)
@@ -47,8 +53,8 @@ public abstract class MusicAnalizerBase : IDisposable
     {
         try
         {
-            BinaryFormatter formatter = new();
-            _machine = (MultilabelSupportVectorMachine<Gaussian>)formatter.Deserialize(str);
+            _machine = (MultilabelSupportVectorMachine<Gaussian>)
+                new BinaryFormatter().Deserialize(str);
         }
         catch (Exception ex)
         {
@@ -56,12 +62,15 @@ public abstract class MusicAnalizerBase : IDisposable
         }
     }
 
-    public void Save(string file)
+    public void Save(string file, bool exclude = true)
     {
         string fileName = Path.Combine(TempPath, "Saves");
 
         if (!Directory.Exists(fileName))
             Directory.CreateDirectory(fileName);
+
+        if (File.Exists(file) && exclude)
+            File.Delete(file);
 
         using ZipArchive zip = ZipFile.Open(file, ZipArchiveMode.Create);
 
@@ -83,7 +92,7 @@ public abstract class MusicAnalizerBase : IDisposable
         fileStr.CopyTo(entryStream);
     }
 
-    public static MusicAnalizerBase Load(string file)
+    public static MusicAnalizerBase Load(string str)
     {
         throw new NotImplementedException();
     }
@@ -96,7 +105,22 @@ public abstract class MusicAnalizerBase : IDisposable
         var str = new Save.StreamReader(entry!.Open());
         genres = str.GetGenres();
 
-        return zip.GetEntry(WeigthsFile)!.Open();
+        string weigthsFile = Path.Combine(TempPath, "Loader");
+
+        if (!Directory.Exists(weigthsFile))
+            Directory.CreateDirectory(weigthsFile);
+
+        var fileStream = new FileStream(Path.Combine(weigthsFile, $"{DateTime.Now:dd_mm_yyyy}.mma"),
+            FileMode.OpenOrCreate,
+            FileAccess.ReadWrite);
+
+        zip.GetEntry(WeigthsFile)!
+            .Open()
+            .CopyTo(fileStream);
+
+        fileStream.Position = 0;
+
+        return fileStream;
     }
 
     #region Auxiliary
@@ -216,10 +240,20 @@ public abstract class MusicAnalizerBase : IDisposable
     }
     #endregion
 
-    public void Dispose()
+    public virtual void Dispose()
     {
-        if (Directory.Exists(TempPath))
-        {
-        }
+        string loaderPath = Path.Combine(TempPath, "Loader");
+
+        if (Directory.Exists(loaderPath))
+            Directory.Delete(loaderPath, true);
+
+        loaderPath = Path.Combine(TempPath, "Saves");
+
+        if (Directory.Exists(loaderPath))
+            Directory.Delete(loaderPath, true);
+
+        dataset = null;
+        _machine = null;
+        GC.SuppressFinalize(this);
     }
 }
