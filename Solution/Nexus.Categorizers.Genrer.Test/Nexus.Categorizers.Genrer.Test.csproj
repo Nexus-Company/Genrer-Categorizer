@@ -37,6 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="teste-slow.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="teste.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

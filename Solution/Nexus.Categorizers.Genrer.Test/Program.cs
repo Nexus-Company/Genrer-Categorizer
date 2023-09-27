@@ -51,7 +51,7 @@ public class Program
 
     private static async Task<string> CreateNewOutput(SpotifyClient client)
     {
-        string json = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "teste.json"));
+        string json = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "teste-slow.json"));
 
         IEnumerable<LoadData> load = EqualizeGenres(JsonConvert.DeserializeObject<LoadData[]>(json)!);
 
@@ -78,11 +78,12 @@ public class Program
         await analizer.ProccessAsync();
         analizer.Trainnig();
 
-        string output = Path.Combine(Environment.CurrentDirectory, "Resources");
+        string output = Path.Combine(Environment.CurrentDirectory, @"Outputs");
 
         if (!Directory.Exists(output))
             Directory.CreateDirectory(output);
 
+        output = Path.Combine(output, "Output.mma");
         analizer.Save(output);
 
         return output;

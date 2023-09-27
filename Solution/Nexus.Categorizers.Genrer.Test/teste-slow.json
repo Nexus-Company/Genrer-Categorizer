@@ -1,0 +1,102 @@
+[
+  {
+    "Id": "2MZQAvsA7aZDssppBLRxYp",
+    "Genres": [ "Sertanejo" ]
+  },
+  {
+    "Id": "0xBQvhJAm6f7J142ympKOn",
+    "Genres": [ "Sertanejo" ]
+  },
+  {
+    "Id": "0rOQyLZJ9oASgtdoDZgrmK",
+    "Genres": [ "Samba" ]
+  },
+  {
+    "Id": "6styQIEeflfqXDljJLzcen",
+    "Genres": [ "Samba" ]
+  },
+  {
+    "Id": "0ydXuJ0euzW2dJ3wOpZrqa",
+    "Genres": [ "Eletrônica" ]
+  },
+  {
+    "Id": "7CLsVSQAa4BPp1dUt2YLXY",
+    "Genres": [ "Eletrônica" ]
+  },
+  {
+    "Id": "5yr6qF6x9hNNXHT3dIxyS2",
+    "Genres": [ "Eletrônica", "House" ]
+  },
+  {
+    "Id": "3Ofmpyhv5UAQ70mENzB277",
+    "Genres": [ "Eletrônica", "HipHop" ]
+  },
+  {
+    "Id": "44xO8889yUQHn70P73NILS",
+    "Genres": [ "Eletrônica", "Dance" ]
+  },
+  {
+    "Id": "12PDChLrctVviiRhM3lE9u",
+    "Genres": [ "House" ]
+  },
+  {
+    "Id": "5PNvgiKSwMdjBsDsgFCFLX",
+    "Genres": [ "House" ]
+  },
+  {
+    "Id": "2NTpi7XGSfkNJcPRqCZSBb",
+    "Genres": [ "House", "Dance" ]
+  },
+  {
+    "Id": "3NrMppEmrfhrz9OXaUejp7",
+    "Genres": [ "Dance" ]
+  },
+  {
+    "Id": "0XMl0fVTh3PyPlwyJTn33n",
+    "Genres": [ "Dance" ]
+  },
+  {
+    "Id": "6pCpskVgVXDKa3EdOhpkeP",
+    "Genres": [ "Pop" ]
+  },
+  {
+    "Id": "1IHp7yyFoHgeIbYrK2khsU",
+    "Genres": [ "Pop" ]
+  },
+  {
+    "Id": "4ubt1S2q2iMgXDpJv9wS1J",
+    "Genres": [ "Funk" ]
+  },
+  {
+    "Id": "1vvzhOHTNzPPtAk8TGnBW5",
+    "Genres": [ "Funk" ]
+  },
+  {
+    "Id": "5VHYq4kBEBNK9Mog5chbqN",
+    "Genres": [ "Funk", "MegaFunk" ]
+  },
+  {
+    "Id": "4K9krP8gIuD7itBiyRgr7S",
+    "Genres": [ "Funk", "MegaFunk" ]
+  },
+  {
+    "Id": "1nDgPqq5gsQince3gJJ6dQ",
+    "Genres": [ "Funk", "EletroFunk" ]
+  },
+  {
+    "Id": "4ivlU5Bte6cUUznToGsStW",
+    "Genres": [ "Funk", "EletroFunk" ]
+  },
+  {
+    "Id": "6YYCK0t9NAz1p7cXLe4xqL",
+    "Genres": [ "Funk", "EletroFunk", "House" ]
+  },
+  {
+    "Id": "4x5q5T5mhE1xvoCVXY6qrN",
+    "Genres": [ "Funk", "FunkSP" ]
+  },
+  {
+    "Id": "553nJ5TakPMdPL0BHVCQSY",
+    "Genres": [ "Funk", "FunkSP" ]
+  }
+]
