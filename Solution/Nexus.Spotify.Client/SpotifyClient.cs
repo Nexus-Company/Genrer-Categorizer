@@ -165,6 +165,7 @@ public class SpotifyClient : IDisposable
 
     public void Dispose()
     {
+        HttpClient.Dispose();
         GC.SuppressFinalize(this);
     }
 

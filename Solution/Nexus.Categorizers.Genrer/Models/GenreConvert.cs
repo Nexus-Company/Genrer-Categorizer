@@ -2,7 +2,7 @@
 
 namespace Nexus.Categorizers.Genrer.Models;
 
-internal struct GenreConvert
+internal readonly struct GenreConvert
 {
     private readonly IDictionary<string, short> keys;
     public readonly string this[int position]

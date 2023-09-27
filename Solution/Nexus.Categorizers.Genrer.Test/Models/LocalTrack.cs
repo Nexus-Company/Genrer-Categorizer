@@ -38,7 +38,7 @@ public class LocalTrack : ITrack
         tempFile = Path.Combine(tempFile, $"{Id}.mp3");
 
         if (File.Exists(tempFile))
-            _stream = new FileStream(tempFile, FileMode.Open, FileAccess.Read);
+            _stream = new FileStream(tempFile, FileMode.Open, FileAccess.Read, FileShare.Read);
         else
         {
             _stream = new FileStream(tempFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);

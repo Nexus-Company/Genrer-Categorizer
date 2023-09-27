@@ -33,7 +33,7 @@ public class MusicAnalizer : MusicAnalizerBase
 
     public static new MusicAnalizer Load(string file)
     {
-        var str = GetLoader(file, out GenreConvert genres);
+        using var str = GetLoader(file, out GenreConvert genres);
 
         return new MusicAnalizer(genres, str);
     }
